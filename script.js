@@ -1,69 +1,74 @@
 const gameArea = document.getElementById('gameArea');
-const shootBtn = document.getElementById('shootBtn');
+const instructions = document.getElementById('instructions');
 
 let cameraX = 0;
 let cameraY = 0;
-let isDragging = false;
-let dragStartX = 0;
-let dragStartY = 0;
-let camStartX = 0;
-let camStartY = 0;
-
-let jumpAmplitude = 20; // pixels
-let jumpSpeed = 0.005; // how fast it jumps
+let jumpAmplitude = 20;
+let jumpSpeed = 0.005;
 let jumpTime = 0;
 
-// Drag camera to move around virtual world
-document.body.addEventListener('mousedown', (e) => {
-  isDragging = true;
-  dragStartX = e.clientX;
-  dragStartY = e.clientY;
-  camStartX = cameraX;
-  camStartY = cameraY;
+let sensitivity = 0.5; // mouse sensitivity for camera movement
+
+// Pointer Lock setup
+gameArea.addEventListener('click', () => {
+  gameArea.requestPointerLock();
 });
 
-document.body.addEventListener('mouseup', () => {
-  isDragging = false;
+// Track pointer lock state
+document.addEventListener('pointerlockchange', () => {
+  if (document.pointerLockElement === gameArea) {
+    instructions.style.display = 'none';
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mousedown', onMouseDown);
+  } else {
+    instructions.style.display = 'block';
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mousedown', onMouseDown);
+  }
 });
 
-document.body.addEventListener('mousemove', (e) => {
-  if (!isDragging) return;
-  let deltaX = e.clientX - dragStartX;
-  let deltaY = e.clientY - dragStartY;
-  cameraX = camStartX + deltaX;
-  cameraY = camStartY + deltaY;
+// Mouse move controls camera panning
+function onMouseMove(e) {
+  cameraX -= e.movementX * sensitivity;
+  cameraY -= e.movementY * sensitivity;
   updateCamera();
-});
+}
 
-// Animate jump effect & update camera position
+// Left click shoots
+function onMouseDown(e) {
+  if (e.button === 0) { // left click
+    shoot();
+  }
+}
+
 function updateCamera() {
-  // Jump offset using sine wave
+  // Jump offset with sine wave
   let jumpOffset = Math.sin(jumpTime) * jumpAmplitude;
   gameArea.style.transform = `translate(${cameraX}px, ${cameraY + jumpOffset}px)`;
 }
 
 function animate(time) {
-  jumpTime += jumpSpeed * 16; // speed based on frame time
+  jumpTime += jumpSpeed * 16;
   updateCamera();
   requestAnimationFrame(animate);
 }
+
 requestAnimationFrame(animate);
 
-// Shoot randomly inside the crosshair circle
-shootBtn.onclick = () => {
-  const circleRadius = 30; // half of crosshair width
-  // Generate random point inside circle using polar coordinates
+// Shoot inside the crosshair circle randomly
+function shoot() {
+  const circleRadius = 30; // crosshair radius
+
   const angle = Math.random() * 2 * Math.PI;
-  const radius = Math.sqrt(Math.random()) * circleRadius; // sqrt for uniform distribution
+  const radius = Math.sqrt(Math.random()) * circleRadius;
+
   const xOffset = radius * Math.cos(angle);
   const yOffset = radius * Math.sin(angle);
 
-  // This simulates where the shot lands relative to center
   console.log(`Shot fired at offset X:${xOffset.toFixed(2)} Y:${yOffset.toFixed(2)}`);
 
-  // You can extend this by showing a bullet or hit effect at that position relative to screen center
   showShotHit(xOffset, yOffset);
-};
+}
 
 function showShotHit(x, y) {
   const hit = document.createElement('div');
@@ -76,7 +81,6 @@ function showShotHit(x, y) {
   hit.style.borderRadius = '50%';
   hit.style.pointerEvents = 'none';
   hit.style.boxShadow = '0 0 8px 4px yellow';
-
   document.body.appendChild(hit);
 
   setTimeout(() => {
