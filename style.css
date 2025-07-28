@@ -3,18 +3,19 @@ html, body {
   overflow: hidden;
   background-color: #111;
   user-select: none;
-  cursor: none; /* hide mouse cursor */
+  cursor: crosshair;
   font-family: Arial, sans-serif;
 }
 
 #gameArea {
   position: absolute;
-  width: 2000px;  /* large virtual world */
+  width: 2000px;
   height: 1500px;
   background: linear-gradient(45deg, #222, #444);
-  transition: transform 0.1s ease-out;
   top: 0;
   left: 0;
+  outline: none;
+  transition: transform 0.05s linear;
 }
 
 #crosshair {
@@ -24,24 +25,21 @@ html, body {
   width: 60px; height: 60px;
   border: 2px solid rgba(255,255,255,0.7);
   border-radius: 50%;
-  pointer-events: none; /* so clicks pass through */
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  pointer-events: none;
+  box-shadow: 0 0 10px rgba(255,255,255,0.5);
 }
 
-#shootBtn {
+#instructions {
   position: fixed;
-  bottom: 20px;
+  top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  padding: 10px 20px;
-  font-size: 18px;
-  background-color: #0a74da;
-  border: none;
-  border-radius: 8px;
   color: white;
-  cursor: pointer;
+  font-size: 18px;
+  background: rgba(0,0,0,0.6);
+  padding: 10px 15px;
+  border-radius: 8px;
+  user-select: none;
+  z-index: 100;
 }
 
-#shootBtn:hover {
-  background-color: #095aa3;
-}
